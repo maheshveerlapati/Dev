@@ -106,7 +106,20 @@ namespace SFDC_TwitterChallenge
             string name = tweetObject[0].user.name;
             string Screen_Name = tweetObject[0].user.screen_name;
             string profile_image_url_https = tweetObject[0].user.profile_image_url_https;
-            string media_url_https = tweetObject[0].entities.media[0].media_url_https;
+            // string media_url_https = tweetObject[0].entities.media[0].media_url_https;
+            string media_url_https = "";
+            if (tweetObject[0].entities.media != null)
+            {
+                media_url_https = tweetObject[0].entities.media[0].media_url_https;
+            }
+            else
+            {
+                media_url_https = "--NA--";
+            }
+
+
+
+
             int retweet_coun = tweetObject[0].retweet_count;
             string createdAt = tweetObject[0].created_at;
 
