@@ -18,8 +18,22 @@
 }
 
 </style>
-
-    <form id="form1" runat="server">
+    <script>
+    function button_click(objTextBox,objBtnID)
+    {
+        if(window.event.keyCode==13)
+        {
+            document.getElementById(objBtnID).focus();
+            document.getElementById(objBtnID).click();
+        }
+    }
+        function txtSearch_OnFocusOut(objTextBox, objBtnID) {
+            document.getElementById(objBtnID).focus();
+            document.getElementById(objBtnID).click();
+        }
+        
+</script>
+    <form id="form1" runat="server" >
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         <asp:Timer ID="TimeRefresh" OnTick="TimeRefresh_Tick" runat="server" Interval="60000" />
         <div id="d">
@@ -71,24 +85,18 @@
                                     <asp:TableRow>
                                         <asp:TableCell Width="150">
                                             <asp:Label Text='<%# DataBinder.Eval(Container.DataItem, "Text") %>' runat="server" />
-                                        </asp:TableCell></asp:TableRow><%-- <asp:TableRow>
-                                        <asp:TableCell>
-                                            <label >'<%# DataBinder.Eval(Container.DataItem, "Text") %>'</label>
-                                        </asp:TableCell>
-                                    </asp:TableRow>--%><asp:TableRow>
+                                        </asp:TableCell></asp:TableRow>
+                                    <asp:TableRow>
                                         <asp:TableCell>
                                             <img width="200" height="160" src='<%# DataBinder.Eval(Container.DataItem, "Media_url_https") %>'>
-                                        </asp:TableCell></asp:TableRow></asp:Table></ItemTemplate></asp:TemplateColumn><asp:BoundColumn ItemStyle-Width="20%" DataField="CreatedAt" HeaderText="Created At" ReadOnly="True" />
+                                        </asp:TableCell></asp:TableRow></asp:Table></ItemTemplate></asp:TemplateColumn>
+                       <asp:BoundColumn ItemStyle-Width="20%" DataField="CreatedAt" HeaderText="Created At" ReadOnly="True" />
                       <asp:BoundColumn ItemStyle-Width="20%" DataField="Retweet_count" HeaderText="ReTweet Count" ReadOnly="True" />
                    </Columns>
                 </asp:DataGrid>
                     </td>
                 </tr>
         </table>
-
-        
-
-        
     </form>
 </body>
 </html>
