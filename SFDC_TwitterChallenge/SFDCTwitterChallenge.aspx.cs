@@ -116,9 +116,7 @@ namespace SFDC_TwitterChallenge
             {
                 media_url_https = "--NA--";
             }
-
-
-
+            
 
             int retweet_coun = tweetObject[0].retweet_count;
             string createdAt = tweetObject[0].created_at;
