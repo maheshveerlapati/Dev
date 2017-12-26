@@ -33,7 +33,11 @@ namespace SFDC_TwitterChallenge
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //if(!Page.IsPostBack)
+            if (!IsPostBack)
+            {
+                this.form1.Attributes.Add("onkeypress", "button_click(this,'" + this.btnSearch.ClientID + "')");
+                this.txtSearch.Attributes.Add("onfocusout", "txtSearch_OnFocusOut(this,'" + this.btnSearch.ClientID + "')");
+            }
             TimeRefresh.Enabled = false;
             GetData();
         }
@@ -98,7 +102,6 @@ namespace SFDC_TwitterChallenge
             tweetObject = new List<TweetObject>();
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             String tweetsJSON = GetTweetsFromAPI();
-            //String tweetsJSON = File.ReadAllText(@"C:\Users\mveerla\Desktop\SampleTwitterTweets_New.Json");
             tweetObject = serializer.Deserialize<List<TweetObject>>(tweetsJSON);
             string name = tweetObject[0].user.name;
             string Screen_Name = tweetObject[0].user.screen_name;
@@ -107,27 +110,18 @@ namespace SFDC_TwitterChallenge
             int retweet_coun = tweetObject[0].retweet_count;
             string createdAt = tweetObject[0].created_at;
 
-            //string[] formats = { "hhmm", "hmm", @"hh\:mm", @"h\:mm\:ss", @"h\:mm", "hh:mm tt" };
-            //TimeSpan parseSuccess = new TimeSpan();
-            //TimeSpan.TryParseExact("Sat Dec 23 20:00:07 + 0000 2017", formats, CultureInfo.CurrentCulture, TimeSpanStyles.None, out parseSuccess);
-
-            //Sat Dec 23 20:00:07 + 0000 2017
-            //DateTime createdAt = DateTime.ParseExact("Sat Dec 23 20:00:07 + 0000 2017", "ddd MMMM DD hh:mm:ss + 0000 yyyy", null, DateTimeStyles.None);
             processedData = searchedData = ProcessTweets(tweetObject);
             imgUserProfile.ImageUrl = tweetObject[0].user.profile_image_url_https;
             lblUserName.Text = tweetObject[0].user.name;
             lblUserScreenName.Text = tweetObject[0].user.screen_name;
 
             SearchWithinData(txtSearch.Text.ToString());
-
-            //JavaScriptSerializer jsonSerialiser = new JavaScriptSerializer();
-            //var json = jsonSerialiser.Serialize(processedData);
         }
 
         public void SearchWithinData(string searchValue)
         {
             if (!string.IsNullOrEmpty(searchValue))
-                searchedData = searchedData.FindAll(x => x.Text.Contains(searchValue));
+                searchedData = searchedData.FindAll(x => x.Text.ToLower().Contains(searchValue.ToLower()));
             else
                 searchedData = processedData;
             grdTwitter.DataSource = searchedData;
@@ -168,5 +162,6 @@ namespace SFDC_TwitterChallenge
         {
             GetData();
         }
+
     }
 }
