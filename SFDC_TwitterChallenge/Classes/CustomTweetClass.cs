@@ -12,6 +12,7 @@ namespace SFDC_TwitterChallenge
         string _profile_image_url_https;
         string _media_url_https;
         string _text;
+        string _Full_text;
         int _retweet_count;
         string _createdAt;
 
@@ -22,5 +23,6 @@ namespace SFDC_TwitterChallenge
         public int Retweet_count { get => _retweet_count; set => _retweet_count = value; }
         public string CreatedAt { get => _createdAt; set => _createdAt = value; }
         public string Text { get => _text; set => _text = value; }
+        public string Full_text { get => _Full_text; set => _Full_text = value; }
     }
 }

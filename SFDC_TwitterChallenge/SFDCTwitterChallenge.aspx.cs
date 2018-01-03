@@ -14,6 +14,7 @@ using System.Web.UI.WebControls;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace SFDC_TwitterChallenge
 {
@@ -25,9 +26,7 @@ namespace SFDC_TwitterChallenge
         string oAuthTokenSecret = "ubGKzq7WbMI5XEyFLQ8j1BRvthtyXlJIPj5ZfvnaeXrbh";
         string accessToken = null;
         Timer timerRefreshData;
-
-
-        List<TweetObject> tweetObject;
+        
         List<CustomTweetClass> processedData;
         List<CustomTweetClass> searchedData;
 
@@ -77,7 +76,7 @@ namespace SFDC_TwitterChallenge
             {
                 if (string.IsNullOrEmpty(accessToken))
                     GetToken();
-                var gettimeline = WebRequest.Create("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=salesforce&count=10") as HttpWebRequest;
+                var gettimeline = WebRequest.Create("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=salesforce&count=10&tweet_mode=extended&include_entities=true") as HttpWebRequest;
 
                 gettimeline.Method = "GET";
                 gettimeline.Headers[HttpRequestHeader.Authorization] = "Bearer " + accessToken;
@@ -99,18 +98,17 @@ namespace SFDC_TwitterChallenge
         public void GetData()
         {
             TimeRefresh.Enabled = false;
-            tweetObject = new List<TweetObject>();
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             String tweetsJSON = GetTweetsFromAPI();
-            tweetObject = serializer.Deserialize<List<TweetObject>>(tweetsJSON);
-            string name = tweetObject[0].user.name;
-            string Screen_Name = tweetObject[0].user.screen_name;
-            string profile_image_url_https = tweetObject[0].user.profile_image_url_https;
-            // string media_url_https = tweetObject[0].entities.media[0].media_url_https;
+            processedData = searchedData = ProcessTweets(tweetsJSON);
+            string name = searchedData[0].Name;
+            string Screen_Name = searchedData[0].Screen_Name;
+            string profile_image_url_https = searchedData[0].Profile_image_url_https;
+
             string media_url_https = "";
-            if (tweetObject[0].entities.media != null)
+            if (searchedData[0].Media_url_https != null)
             {
-                media_url_https = tweetObject[0].entities.media[0].media_url_https;
+                media_url_https = searchedData[0].Media_url_https;
             }
             else
             {
@@ -118,13 +116,12 @@ namespace SFDC_TwitterChallenge
             }
             
 
-            int retweet_coun = tweetObject[0].retweet_count;
-            string createdAt = tweetObject[0].created_at;
+            int retweet_coun = searchedData[0].Retweet_count;
+            string createdAt = searchedData[0].CreatedAt;
 
-            processedData = searchedData = ProcessTweets(tweetObject);
-            imgUserProfile.ImageUrl = tweetObject[0].user.profile_image_url_https;
-            lblUserName.Text = tweetObject[0].user.name;
-            lblUserScreenName.Text = tweetObject[0].user.screen_name;
+            imgUserProfile.ImageUrl = searchedData[0].Profile_image_url_https;
+            lblUserName.Text = searchedData[0].Name;
+            lblUserScreenName.Text = searchedData[0].Screen_Name;
 
             SearchWithinData(txtSearch.Text.ToString());
         }
@@ -140,28 +137,44 @@ namespace SFDC_TwitterChallenge
             TimeRefresh.Enabled = true;
         }
 
-        public List<CustomTweetClass> ProcessTweets(List<TweetObject> tweets)
+        public List<CustomTweetClass> ProcessTweets(string twitterResponse)
         {
-            List<CustomTweetClass> tweetsForView = new List<CustomTweetClass>();
-            CustomTweetClass customTweets = null;
-            int index = 0;
-            foreach (TweetObject tweetObj in tweets)
+            List<CustomTweetClass> CustomTweets = new List<CustomTweetClass>();
+            dynamic tweetsFromResponse = JsonConvert.DeserializeObject(twitterResponse);
+
+            foreach (var tweetItem in tweetsFromResponse)
             {
-                customTweets = new CustomTweetClass();
-                index = tweets.IndexOf(tweetObj);
-                customTweets.Name = tweetObject[index].user.name;
-                customTweets.Screen_Name = tweetObject[index].user.screen_name;
-                customTweets.Profile_image_url_https = tweetObject[index].user.profile_image_url_https;
-                if (tweetObject[index].entities.media != null && tweetObject[index].entities.media.Count > 0 && !string.IsNullOrEmpty(tweetObject[index].entities.media[0].media_url_https.ToString()))
-                    customTweets.Media_url_https = tweetObject[index].entities.media[0].media_url_https;
+                CustomTweetClass tweet = new CustomTweetClass();
+                if (tweetItem["full_text"] != null)
+                    tweet.Full_text = (string)tweetItem["full_text"];
                 else
-                    customTweets.Media_url_https = "";
-                customTweets.Retweet_count = tweetObject[index].retweet_count;
-                customTweets.CreatedAt = tweetObject[index].created_at;
-                customTweets.Text = tweetObject[index].text;
-                tweetsForView.Add(customTweets);
+                    tweet.Full_text = "";
+                if (tweetItem["user"] != null)
+                    tweet.Name = (string)tweetItem["user"]["name"];
+                else
+                    tweet.Name = "";
+
+                tweet.Screen_Name = (string)tweetItem["user"]["screen_name"];
+                tweet.Profile_image_url_https = (string)tweetItem["user"]["profile_image_url_https"];
+                if (tweetItem["entities"]["media"] != null)
+                    tweet.Media_url_https = (string)tweetItem["entities"]["media"][0]["media_url_https"];
+                else if (tweetItem["quoted_status"] != null && tweetItem["quoted_status"]["entities"]["media"] != null)
+                {
+                    tweet.Media_url_https = (string)tweetItem["quoted_status"]["entities"]["media"][0]["media_url_https"];
+                }
+                else
+                    tweet.Media_url_https = "";
+
+                if (tweetItem["retweet_count"] != null)
+                    tweet.Retweet_count = (int)tweetItem["retweet_count"];
+                else
+                    tweetItem["retweet_count"] = "";
+
+                tweet.CreatedAt = (string)tweetItem["created_at"];
+                CustomTweets.Add(tweet);
             }
-            return tweetsForView;
+
+            return CustomTweets;
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)

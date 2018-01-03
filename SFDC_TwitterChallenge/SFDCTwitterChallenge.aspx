@@ -99,7 +99,7 @@
                                     <asp:TableRow>
                                         <asp:TableCell Width="150">
                                             <div class="container">
-                                                <asp:Label Text='<%# ( (string) Eval( "Text" ) ) %>' runat="server"  />
+                                                <asp:Label Text='<%# ( (string) Eval( "full_text" ) ) %>' runat="server"  />
                                             </div>
                                             
                                         </asp:TableCell></asp:TableRow><asp:TableRow>
