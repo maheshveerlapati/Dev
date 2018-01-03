@@ -17,10 +17,10 @@ Hosting:  Azure Cloud Services
 
 Web APP: http://twitterchallenge.cloudapp.net/
 
-•	App displays most recent 10 tweets  of  Salesforce twitter account
+•	App displays 10 latest tweets from Salesforce twitter account
 
-•	Tweets are automatically refreshed every 1 minute 
+•	Tweets are automatically refreshed every minute 
 
-•	Tweets can be searched in the app by entering text in search box
+•	User could search the tweets by entering search criteria in the text field
 
-•	Search option is also available on mouse click and with search CTA button
+•	Search option is also available on mouse click and the search CTA 
