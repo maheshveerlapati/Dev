@@ -129,8 +129,8 @@ namespace SFDC_TwitterChallenge
         public void SearchWithinData(string searchValue)
         {
             if (!string.IsNullOrEmpty(searchValue))
-                searchedData = searchedData.FindAll(x => x.Text.ToLower().Contains(searchValue.ToLower()));
-            else
+              searchedData = searchedData.FindAll(x => x.Full_text.ToLower().Contains(searchValue.ToLower()));
+             else
                 searchedData = processedData;
             grdTwitter.DataSource = searchedData;
             grdTwitter.DataBind();
